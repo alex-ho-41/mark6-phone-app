@@ -18,8 +18,7 @@ const PROD_IDS = {
   },
 };
 
-// Force test ads until AdMob account is fully approved
-const FORCE_TEST_ADS = true;
+const FORCE_TEST_ADS = false;
 
 const platform = Platform.OS === 'ios' ? 'ios' : 'android';
 

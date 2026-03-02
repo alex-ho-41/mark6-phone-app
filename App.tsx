@@ -27,6 +27,7 @@ import { DisclaimerModal } from './src/components/DisclaimerModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LanguageProvider, useTranslation } from './src/i18n/LanguageContext';
 import { apiFetch, getApiUrl } from './src/utils/apiClient';
+import { scale } from './src/utils/scale';
 
 const formatJackpot = (amount: number): string => {
   return amount.toLocaleString();
@@ -305,11 +306,16 @@ function AppContent() {
       setFavorites((prev) => prev.filter((f) => f.numbers.join(',') !== key));
     } else {
       setFavorites((prev) => [
-        { id: Date.now(), numbers: [...currentNumbers], timestamp: new Date() },
+        {
+          id: Date.now(),
+          numbers: [...currentNumbers],
+          timestamp: new Date(),
+          bankerCount: bankerResult ? bankerResult.bankers.length : undefined,
+        },
         ...prev,
       ]);
     }
-  }, [currentNumbers, favorites]);
+  }, [currentNumbers, favorites, bankerResult]);
 
   const handleRemoveFavorite = useCallback((id: number) => {
     setFavorites((prev) => prev.filter((f) => f.id !== id));
@@ -320,12 +326,12 @@ function AppContent() {
     [favorites],
   );
 
-  const handleToggleFavorite = useCallback((numbers: number[]) => {
+  const handleToggleFavorite = useCallback((numbers: number[], bankerCount?: number) => {
     const key = numbers.join(',');
     setFavorites((prev) => {
       const exists = prev.some((f) => f.numbers.join(',') === key);
       if (exists) return prev.filter((f) => f.numbers.join(',') !== key);
-      return [{ id: Date.now(), numbers: [...numbers], timestamp: new Date() }, ...prev];
+      return [{ id: Date.now(), numbers: [...numbers], timestamp: new Date(), bankerCount }, ...prev];
     });
   }, []);
 
@@ -790,8 +796,8 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     alignItems: 'center',
-    paddingTop: 10,
-    paddingBottom: 16,
+    paddingTop: scale(10),
+    paddingBottom: scale(16),
   },
 
   /* Header */
@@ -808,7 +814,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   mainTitle: {
-    fontSize: 36,
+    fontSize: scale(36),
     fontWeight: '900',
     color: '#fcd34d',
     textShadowColor: 'rgba(212, 175, 55, 0.5)',
@@ -822,7 +828,7 @@ const styles = StyleSheet.create({
     marginVertical: 6,
   },
   subTitle: {
-    fontSize: 10,
+    fontSize: scale(10),
     color: '#fcd34d',
     letterSpacing: 3,
     opacity: 0.8,
@@ -833,21 +839,21 @@ const styles = StyleSheet.create({
     width: '90%',
     backgroundColor: 'rgba(69, 10, 10, 0.9)',
     borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
+    paddingVertical: scale(14),
+    paddingHorizontal: scale(16),
     borderWidth: 1,
     borderColor: 'rgba(212, 175, 55, 0.4)',
-    marginBottom: 10,
+    marginBottom: scale(10),
     alignItems: 'center',
     position: 'relative',
   },
   cardTitle: {
-    fontSize: 18,
+    fontSize: scale(18),
     fontWeight: 'bold',
     color: '#fcd34d',
   },
   cardSubtitle: {
-    fontSize: 12,
+    fontSize: scale(12),
     color: 'rgba(252, 211, 77, 0.6)',
     marginTop: 3,
     marginBottom: 8,
@@ -874,7 +880,7 @@ const styles = StyleSheet.create({
   },
   lastDrawPlus: {
     color: '#fcd34d',
-    fontSize: 18,
+    fontSize: scale(18),
     fontWeight: 'bold',
     marginHorizontal: 2,
   },
@@ -892,18 +898,18 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
   },
   payoutLabel: {
-    fontSize: 11,
+    fontSize: scale(11),
     color: 'rgba(252, 211, 77, 0.6)',
     fontWeight: 'bold',
   },
   payoutValue: {
-    fontSize: 11,
+    fontSize: scale(11),
     color: 'rgba(255, 255, 255, 0.85)',
   },
 
   /* Jackpot */
   jackpotLabel: {
-    fontSize: 13,
+    fontSize: scale(13),
     color: 'rgba(252, 211, 77, 0.8)',
     letterSpacing: 2,
     fontWeight: 'bold',
@@ -914,11 +920,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   jackpotIcon: {
-    fontSize: 28,
+    fontSize: scale(28),
     marginRight: 8,
   },
   jackpotValue: {
-    fontSize: 32,
+    fontSize: scale(32),
     fontWeight: 'bold',
     color: 'white',
   },
@@ -926,7 +932,7 @@ const styles = StyleSheet.create({
     color: '#fcd34d',
   },
   nextDrawInfoText: {
-    fontSize: 12,
+    fontSize: scale(12),
     color: 'rgba(252, 211, 77, 0.6)',
     marginTop: 6,
   },
@@ -940,7 +946,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   sectionLabel: {
-    fontSize: 13,
+    fontSize: scale(13),
     color: 'rgba(252, 211, 77, 0.8)',
     letterSpacing: 2,
     fontWeight: 'bold',
@@ -972,23 +978,23 @@ const styles = StyleSheet.create({
   /* Fortune Text */
   fortuneText: {
     color: '#fcd34d',
-    fontSize: 18,
+    fontSize: scale(18),
     fontWeight: 'bold',
     marginTop: 10,
-    marginBottom: 18,
+    marginBottom: scale(18),
   },
   timeText: {
-    fontSize: 12,
+    fontSize: scale(12),
     color: 'rgba(252, 211, 77, 0.5)',
     marginBottom: 16,
   },
 
   /* Generate Button */
   generateButton: {
-    marginTop: 10,
+    marginTop: scale(10),
     width: '90%',
-    height: 54,
-    borderRadius: 27,
+    height: scale(54),
+    borderRadius: scale(27),
     overflow: 'hidden',
     borderWidth: 2,
     borderColor: 'rgba(212, 175, 55, 0.5)',
@@ -1002,7 +1008,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fcd34d',
-    fontSize: 20,
+    fontSize: scale(20),
     fontWeight: 'bold',
     letterSpacing: 3,
   },
@@ -1013,7 +1019,7 @@ const styles = StyleSheet.create({
   /* Mode Toggle */
   modeToggle: {
     flexDirection: 'row',
-    marginBottom: 12,
+    marginBottom: scale(12),
     gap: 6,
     width: '90%',
     justifyContent: 'center',
@@ -1031,7 +1037,7 @@ const styles = StyleSheet.create({
     borderColor: '#d4af37',
   },
   modeTabText: {
-    fontSize: 14,
+    fontSize: scale(14),
     color: 'rgba(252, 211, 77, 0.5)',
     fontWeight: 'bold',
   },
@@ -1051,7 +1057,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   zodiacSectionLabel: {
-    fontSize: 13,
+    fontSize: scale(13),
     color: 'rgba(252, 211, 77, 0.8)',
     fontWeight: 'bold',
     letterSpacing: 2,
@@ -1077,10 +1083,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(212, 175, 55, 0.15)',
   },
   zodiacEmoji: {
-    fontSize: 24,
+    fontSize: scale(24),
   },
   zodiacLabel: {
-    fontSize: 10,
+    fontSize: scale(10),
     color: 'rgba(252, 211, 77, 0.6)',
     marginTop: 2,
   },
@@ -1107,7 +1113,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(212, 175, 55, 0.2)',
   },
   hourPillText: {
-    fontSize: 13,
+    fontSize: scale(13),
     color: 'rgba(252, 211, 77, 0.6)',
     fontWeight: 'bold',
   },
@@ -1115,7 +1121,7 @@ const styles = StyleSheet.create({
     color: '#fcd34d',
   },
   hourPillTime: {
-    fontSize: 10,
+    fontSize: scale(10),
     color: 'rgba(252, 211, 77, 0.4)',
     marginTop: 2,
   },
@@ -1131,7 +1137,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   bankerGroupLabel: {
-    fontSize: 13,
+    fontSize: scale(13),
     color: '#d4af37',
     fontWeight: 'bold',
     letterSpacing: 2,
@@ -1165,7 +1171,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   colorFilterLabel: {
-    fontSize: 13,
+    fontSize: scale(13),
     color: 'rgba(252, 211, 77, 0.8)',
     fontWeight: 'bold',
   },
@@ -1215,7 +1221,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   navText: {
-    fontSize: 11,
+    fontSize: scale(11),
     color: 'rgba(252, 211, 77, 0.7)',
     marginTop: 4,
   },

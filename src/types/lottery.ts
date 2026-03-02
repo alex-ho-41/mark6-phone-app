@@ -56,6 +56,7 @@ export interface FavoriteEntry {
   id: number;
   numbers: number[];
   timestamp: Date;
+  bankerCount?: number;
 }
 
 export interface DrawResult {

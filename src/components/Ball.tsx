@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { getBallColor } from '../utils/lotteryUtils';
+import { scale } from '../utils/scale';
 
 interface BallProps {
   number: number;
@@ -15,14 +16,14 @@ export const Ball: React.FC<BallProps> = React.memo(({ number, size = 'default' 
   const baseColor = getBallColor(number);
   const isSmall = size === 'small';
 
-  const lanternW = isSmall ? 36 : 48;
-  const lanternH = isSmall ? 47 : 62;
-  const fontSize = isSmall ? 17 : 22;
-  const capH = isSmall ? 4 : 6;
-  const capTop = isSmall ? -3 : -4;
-  const capBot = isSmall ? -3 : -4;
-  const stringH = isSmall ? 8 : 10;
-  const tasselSize = isSmall ? 6 : 7;
+  const lanternW = isSmall ? scale(36) : scale(48);
+  const lanternH = isSmall ? scale(47) : scale(62);
+  const fontSize = isSmall ? scale(17) : scale(22);
+  const capH = isSmall ? scale(4) : scale(6);
+  const capTop = isSmall ? scale(-3) : scale(-4);
+  const capBot = isSmall ? scale(-3) : scale(-4);
+  const stringH = isSmall ? scale(8) : scale(10);
+  const tasselSize = isSmall ? scale(6) : scale(7);
 
   return (
     <View style={[styles.container, isSmall && styles.containerSmall]}>

@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   FlatList,
   StyleSheet,
-  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Ball } from './Ball';
@@ -29,6 +28,33 @@ const formatTime = (date: Date): string => {
   return `${mo}-${d} ${h}:${m}:${s}`;
 };
 
+const BankerBallRow: React.FC<{ numbers: number[]; bankerCount: number }> = ({ numbers, bankerCount }) => {
+  const { t } = useTranslation();
+  const bankers = numbers.slice(0, bankerCount);
+  const players = numbers.slice(bankerCount);
+  return (
+    <View style={styles.bankerLayout}>
+      <View style={styles.bankerSection}>
+        <Text style={styles.bankerLabel}>{t('banker')}</Text>
+        <View style={styles.ballRow}>
+          {bankers.map((num) => (
+            <Ball key={`b-${num}`} number={num} size="small" />
+          ))}
+        </View>
+      </View>
+      <Text style={styles.bankerPlus}>+</Text>
+      <View style={styles.bankerSection}>
+        <Text style={styles.bankerLabel}>{t('player')}</Text>
+        <View style={styles.ballRow}>
+          {players.map((num) => (
+            <Ball key={`p-${num}`} number={num} size="small" />
+          ))}
+        </View>
+      </View>
+    </View>
+  );
+};
+
 const FavoriteRow = React.memo(
   ({ item, index, onRemove }: { item: FavoriteEntry; index: number; onRemove: (id: number) => void }) => (
     <View style={styles.row}>
@@ -41,18 +67,15 @@ const FavoriteRow = React.memo(
           </TouchableOpacity>
         </View>
       </View>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={[
-          styles.ballRow,
-          { justifyContent: item.numbers.length > 7 ? 'flex-start' : 'space-evenly' }
-        ]}
-      >
-        {item.numbers.map((num) => (
-          <Ball key={num} number={num} size="small" />
-        ))}
-      </ScrollView>
+      {item.bankerCount ? (
+        <BankerBallRow numbers={item.numbers} bankerCount={item.bankerCount} />
+      ) : (
+        <View style={styles.ballRow}>
+          {item.numbers.map((num) => (
+            <Ball key={num} number={num} size="small" />
+          ))}
+        </View>
+      )}
     </View>
   ),
 );
@@ -201,11 +224,31 @@ const styles = StyleSheet.create({
   },
   ballRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: 6,
-    minWidth: '100%',
-    gap: 8,
+    gap: 6,
     paddingHorizontal: 4,
+  },
+  bankerLayout: {
+    alignItems: 'center',
+    gap: 4,
+  },
+  bankerSection: {
+    alignItems: 'center',
+  },
+  bankerLabel: {
+    fontSize: 11,
+    color: '#d4af37',
+    fontWeight: 'bold',
+    letterSpacing: 2,
+    marginBottom: 4,
+  },
+  bankerPlus: {
+    color: '#fcd34d',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   corner: {
     position: 'absolute',
