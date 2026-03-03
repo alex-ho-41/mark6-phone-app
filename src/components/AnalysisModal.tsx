@@ -32,19 +32,19 @@ const formatDate = (dateStr: string): string => {
 const DrawRow = React.memo(({ item }: { item: DrawResult }) => {
   const { t } = useTranslation();
   return (
-  <View style={styles.row}>
-    <View style={styles.rowHeader}>
-      <Text style={styles.drawNumber}>{t('drawPrefix', { n: item.drawNumber })}</Text>
-      <Text style={styles.drawDate}>{formatDate(item.drawDate)}</Text>
+    <View style={styles.row}>
+      <View style={styles.rowHeader}>
+        <Text style={styles.drawNumber}>{t('drawPrefix', { n: item.drawNumber })}</Text>
+        <Text style={styles.drawDate}>{formatDate(item.drawDate)}</Text>
+      </View>
+      <View style={styles.ballRow}>
+        {item.numbers.map((num, i) => (
+          <Ball key={`${num}-${i}`} number={Number(num)} size="small" />
+        ))}
+        <Text style={styles.plusSign}>+</Text>
+        <Ball key={`extra-${item.extraNumber}`} number={Number(item.extraNumber)} size="small" />
+      </View>
     </View>
-    <View style={styles.ballRow}>
-      {item.numbers.map((num, i) => (
-        <Ball key={`${num}-${i}`} number={Number(num)} size="small" />
-      ))}
-      <Text style={styles.plusSign}>+</Text>
-      <Ball key={`extra-${item.extraNumber}`} number={Number(item.extraNumber)} size="small" />
-    </View>
-  </View>
   );
 });
 
