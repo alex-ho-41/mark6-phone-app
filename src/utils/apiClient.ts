@@ -1,4 +1,4 @@
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.31.204:3000/api';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api';
 const API_KEY = process.env.EXPO_PUBLIC_API_KEY || '';
 
 const headers: Record<string, string> = {
@@ -8,11 +8,19 @@ const headers: Record<string, string> = {
 
 export async function apiFetch<T>(path: string): Promise<T> {
   const url = path ? `${API_URL}/${path}` : API_URL;
-  const response = await fetch(url, { headers });
-  if (!response.ok) {
-    throw new Error(`API error: ${response.status}`);
+  console.log('[apiFetch] URL:', url);
+  console.log('[apiFetch] API_URL:', API_URL);
+  try {
+    const response = await fetch(url, { headers });
+    console.log('[apiFetch] status:', response.status);
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+    return response.json();
+  } catch (err) {
+    console.error('[apiFetch] FAILED:', url, err);
+    throw err;
   }
-  return response.json();
 }
 
 export function getApiUrl(): string {

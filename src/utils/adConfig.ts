@@ -9,24 +9,25 @@ const TEST_INTERSTITIAL = 'ca-app-pub-3940256099942544/1033173712';
 
 const PROD_IDS = {
   android: {
-    banner: 'ca-app-pub-8422835846268677/8780492501',
-    interstitial: 'ca-app-pub-8422835846268677/8812640887',
+    banner: process.env.EXPO_PUBLIC_ADMOB_ANDROID_BANNER!,
+    interstitial: process.env.EXPO_PUBLIC_ADMOB_ANDROID_INTERSTITIAL!,
   },
   ios: {
-    banner: 'ca-app-pub-8422835846268677/9082581112',
-    interstitial: 'ca-app-pub-8422835846268677/3806203702',
+    banner: process.env.EXPO_PUBLIC_ADMOB_IOS_BANNER!,
+    interstitial: process.env.EXPO_PUBLIC_ADMOB_IOS_INTERSTITIAL!,
   },
 };
 
-const FORCE_TEST_ADS = false;
+// Read from env — set to 'true' in .env for dev/preview EAS builds
+const FORCE_TEST_ADS = process.env.EXPO_PUBLIC_FORCE_TEST_ADS === 'true';
 
 const platform = Platform.OS === 'ios' ? 'ios' : 'android';
 
 export const AD_UNIT_IDS = {
-  banner: (__DEV__ || FORCE_TEST_ADS)
+  banner: (__DEV__ || FORCE_TEST_ADS || isExpoGo)
     ? TEST_BANNER
     : PROD_IDS[platform].banner,
-  interstitial: (__DEV__ || FORCE_TEST_ADS)
+  interstitial: (__DEV__ || FORCE_TEST_ADS || isExpoGo)
     ? TEST_INTERSTITIAL
     : PROD_IDS[platform].interstitial,
 };

@@ -1,7 +1,39 @@
 node_modules/
 .expo/
 dist/
+build/
+
+# Environment Variables
 .env
 .env.local
+.env.development
+.env.production
+.env.staging
+.env.preview
+
+# Google / Firebase Credentials
+google-service-account.json
+google-services.json
+GoogleService-Info.plist
+
+# Apple Signing
+*.p12
+*.p8
+*.mobileprovision
+*.cer
+
+# Android Keystore
+*.jks
+*.keystore
+keystore.properties
+
+# Logs
 *.log
+
+# AI Dev Files
+CLAUDE.md
 .claude/
+
+# OS
+.DS_Store
+Thumbs.db
