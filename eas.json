@@ -22,6 +22,18 @@
         "EXPO_PUBLIC_FORCE_TEST_ADS": "true"
       }
     },
+    "internal": {
+      "environment": "preview",
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "ios": {
+        "distribution": "store"
+      },
+      "env": {
+        "EXPO_PUBLIC_FORCE_TEST_ADS": "true"
+      }
+    },
     "production": {
       "android": {
         "buildType": "app-bundle"
@@ -35,10 +47,16 @@
     }
   },
   "submit": {
-    "production": {
+    "internal": {
       "android": {
         "serviceAccountKeyPath": "./google-service-account.json",
         "track": "internal"
+      }
+    },
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./google-service-account.json",
+        "track": "production"
       }
     }
   }
