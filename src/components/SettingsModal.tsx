@@ -6,14 +6,17 @@ import {
   TouchableOpacity,
   StyleSheet,
   Linking,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from '../i18n/LanguageContext';
 import { Lang } from '../i18n/translations';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface SettingsModalProps {
   visible: boolean;
   onClose: () => void;
+  onReset?: () => void;
 }
 
 const LANG_OPTIONS: { value: Lang; label: string }[] = [
@@ -21,12 +24,30 @@ const LANG_OPTIONS: { value: Lang; label: string }[] = [
   { value: 'en', label: 'English' },
 ];
 
-// TODO: Replace with your actual GitHub Pages URL after enabling Pages
 const PRIVACY_POLICY_URL = 'https://ahohty41.github.io/mark6-phone-app/privacy-policy.html';
 
 export const SettingsModal: React.FC<SettingsModalProps> = React.memo(
-  ({ visible, onClose }) => {
+  ({ visible, onClose, onReset }) => {
     const { lang, setLang, t } = useTranslation();
+
+    const handleReset = () => {
+      Alert.alert(
+        t('resetAppData'),
+        t('confirmReset'),
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Reset',
+            style: 'destructive',
+            onPress: async () => {
+              await AsyncStorage.clear();
+              onReset?.();
+              onClose();
+            },
+          },
+        ],
+      );
+    };
 
     return (
       <Modal
@@ -87,6 +108,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = React.memo(
               <Text style={styles.optionLabel}>{t('privacyPolicy')}</Text>
               <Ionicons name="open-outline" size={18} color="rgba(252, 211, 77, 0.6)" />
             </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.optionRow, { marginTop: 12, borderColor: '#ef4444' }]}
+              onPress={handleReset}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.optionLabel, { color: '#ef4444' }]}>{t('resetAppData')}</Text>
+              <Ionicons name="trash-outline" size={18} color="#ef4444" />
+            </TouchableOpacity>
+
             <View style={styles.versionRow}>
               <Text style={styles.versionText}>{t('version')} 1.0.0</Text>
             </View>

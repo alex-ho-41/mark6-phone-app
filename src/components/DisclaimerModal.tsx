@@ -40,17 +40,34 @@ export const DisclaimerModal: React.FC<DisclaimerModalProps> = React.memo(
   ({ visible, onAccept }) => {
     const { t } = useTranslation();
     const [scrolledToBottom, setScrolledToBottom] = useState(false);
+    const [scrollViewHeight, setScrollViewHeight] = useState(0);
 
     const handleScroll = useCallback(
       (e: NativeSyntheticEvent<NativeScrollEvent>) => {
         if (scrolledToBottom) return;
         const { layoutMeasurement, contentOffset, contentSize } = e.nativeEvent;
+        // Increase buffer to 50 and use a more reliable check
         const isBottom =
-          layoutMeasurement.height + contentOffset.y >= contentSize.height - 30;
+          layoutMeasurement.height + contentOffset.y >= contentSize.height - 50;
         if (isBottom) setScrolledToBottom(true);
       },
       [scrolledToBottom],
     );
+
+    const onContentSizeChange = useCallback(
+      (width: number, height: number) => {
+        // If content is small enough to fit without scrolling, or within buffer, enable button
+        if (scrollViewHeight > 0 && height <= scrollViewHeight + 20) {
+          setScrolledToBottom(true);
+        }
+      },
+      [scrollViewHeight, scrolledToBottom],
+    );
+
+    const onScrollViewLayout = useCallback((e: any) => {
+      const { height } = e.nativeEvent.layout;
+      setScrollViewHeight(height);
+    }, []);
 
     return (
       <Modal visible={visible} animationType="fade" transparent>
@@ -71,7 +88,10 @@ export const DisclaimerModal: React.FC<DisclaimerModalProps> = React.memo(
               style={styles.scrollView}
               contentContainerStyle={styles.scrollContent}
               onScroll={handleScroll}
-              scrollEventThrottle={200}
+              onMomentumScrollEnd={handleScroll}
+              onContentSizeChange={onContentSizeChange}
+              onLayout={onScrollViewLayout}
+              scrollEventThrottle={16}
               showsVerticalScrollIndicator
             >
               <Text style={styles.sectionHeader}>免責聲明</Text>

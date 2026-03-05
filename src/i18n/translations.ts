@@ -82,6 +82,8 @@ type TranslationKeys = {
   privacyPolicy: string;
   about: string;
   version: string;
+  resetAppData: string;
+  confirmReset: string;
 };
 
 export const translations: Record<Lang, TranslationKeys> = {
@@ -167,6 +169,8 @@ export const translations: Record<Lang, TranslationKeys> = {
     privacyPolicy: '隱私政策',
     about: '關於',
     version: '版本',
+    resetAppData: '重置應用程式資料',
+    confirmReset: '確定要清除所有收藏記錄並重新顯示特免責聲明嗎？',
   },
   en: {
     appTitle: 'Mark Six',
@@ -250,5 +254,7 @@ export const translations: Record<Lang, TranslationKeys> = {
     privacyPolicy: 'Privacy Policy',
     about: 'About',
     version: 'Version',
+    resetAppData: 'Reset App Data',
+    confirmReset: 'Are you sure you want to clear all data and show the disclaimer again?',
   },
 };

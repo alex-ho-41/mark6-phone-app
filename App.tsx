@@ -8,11 +8,12 @@ import {
   StatusBar,
   ScrollView,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { BannerAdComponent } from './src/components/BannerAdComponent';
 import { isExpoGo, AD_UNIT_IDS, INTERSTITIAL_FREQUENCY } from './src/utils/adConfig';
 import { Ball } from './src/components/Ball';
-import { generateMarkSixNumbers, generateBankerNumbers, generateMultipleNumbers, distributeColors, RED_BALLS, BLUE_BALLS, GREEN_BALLS } from './src/utils/lotteryUtils';
+import { generateMarkSixNumbers, generateBankerNumbers, generateMultipleNumbers, generateColorConstrainedNumbers, distributeColors, RED_BALLS, BLUE_BALLS, GREEN_BALLS } from './src/utils/lotteryUtils';
 import { generateZodiacNumbers, ZODIAC_LIST, HOUR_LIST, Zodiac, ChineseHour } from './src/utils/zodiacUtils';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { ApiResponse, HistoryEntry, MarkSixResult, FavoriteEntry, BankerConfig, MultipleConfig, ColorDistribution } from './src/types/lottery';
@@ -64,6 +65,7 @@ function AppContent() {
   });
   const [bankerResult, setBankerResult] = useState<{ bankers: number[]; players: number[] } | null>(null);
   const [useColorFilter, setUseColorFilter] = useState(false);
+  const [randomColors, setRandomColors] = useState<ColorDistribution>(distributeColors(6));
   const [disclaimerVisible, setDisclaimerVisible] = useState(true);
   const generateCountRef = useRef(0);
   const interstitialRef = useRef<any>(null);
@@ -159,7 +161,12 @@ function AppContent() {
     } else if (mode === 'zodiac') {
       newNumbers = generateZodiacNumbers(selectedZodiac, selectedHour);
     } else {
-      newNumbers = generateMarkSixNumbers();
+      // Random mode
+      if (useColorFilter) {
+        newNumbers = generateColorConstrainedNumbers(randomColors);
+      } else {
+        newNumbers = generateMarkSixNumbers();
+      }
     }
 
     setCurrentNumbers(newNumbers);
@@ -180,7 +187,7 @@ function AppContent() {
       const updated = [entry, ...prev];
       return updated.length > 10 ? updated.slice(0, 10) : updated;
     });
-  }, [mode, selectedZodiac, selectedHour, bankerConfig, multipleConfig, useColorFilter]);
+  }, [mode, selectedZodiac, selectedHour, bankerConfig, multipleConfig, useColorFilter, randomColors]);
 
   const handleSelectZodiac = useCallback((z: Zodiac) => {
     setSelectedZodiac(z);
@@ -287,6 +294,34 @@ function AppContent() {
         }
 
         return { ...prev, colors };
+      });
+    },
+    [],
+  );
+
+  const updateRandomColor = useCallback(
+    (colorKey: keyof ColorDistribution, value: number) => {
+      setRandomColors((prev) => {
+        const colors = { ...prev, [colorKey]: value };
+        const otherKeys = (['red', 'blue', 'green'] as const).filter((k) => k !== colorKey);
+        const remaining = 6 - value;
+        const pools = { red: RED_BALLS.length, blue: BLUE_BALLS.length, green: GREEN_BALLS.length };
+
+        let leftover = remaining;
+        for (const k of otherKeys) {
+          const maxForK = Math.min(pools[k], leftover);
+          colors[k] = Math.min(colors[k], maxForK);
+          leftover -= colors[k];
+        }
+        if (leftover > 0) {
+          for (const k of otherKeys) {
+            const canAdd = Math.min(pools[k] - colors[k], leftover);
+            colors[k] += canAdd;
+            leftover -= canAdd;
+          }
+        }
+
+        return colors;
       });
     },
     [],
@@ -514,6 +549,47 @@ function AppContent() {
                 </TouchableOpacity>
               ))}
             </View>
+
+            {/* Random Mode Color Panel */}
+            {mode === 'random' && (
+              <View style={styles.zodiacCard}>
+                <TouchableOpacity
+                  style={styles.colorFilterToggle}
+                  onPress={() => setUseColorFilter((prev) => !prev)}
+                >
+                  <Text style={styles.colorFilterLabel}>{t('useColorFilter')}</Text>
+                  <View style={[styles.colorFilterSwitch, useColorFilter && styles.colorFilterSwitchOn]}>
+                    <View style={[styles.colorFilterKnob, useColorFilter && styles.colorFilterKnobOn]} />
+                  </View>
+                </TouchableOpacity>
+
+                {useColorFilter && (
+                  <>
+                    <ColorStepper
+                      label={t('redBalls')}
+                      color="#FF3B30"
+                      value={randomColors.red}
+                      max={Math.min(RED_BALLS.length, 6)}
+                      onChange={(v) => updateRandomColor('red', v)}
+                    />
+                    <ColorStepper
+                      label={t('blueBalls')}
+                      color="#007AFF"
+                      value={randomColors.blue}
+                      max={Math.min(BLUE_BALLS.length, 6)}
+                      onChange={(v) => updateRandomColor('blue', v)}
+                    />
+                    <ColorStepper
+                      label={t('greenBalls')}
+                      color="#34C759"
+                      value={randomColors.green}
+                      max={Math.min(GREEN_BALLS.length, 6)}
+                      onChange={(v) => updateRandomColor('green', v)}
+                    />
+                  </>
+                )}
+              </View>
+            )}
 
             {/* Zodiac Selector (visible in zodiac mode) */}
             {mode === 'zodiac' && (
@@ -765,6 +841,11 @@ function AppContent() {
       <SettingsModal
         visible={settingsVisible}
         onClose={() => setSettingsVisible(false)}
+        onReset={() => {
+          setDisclaimerVisible(true);
+          setFavorites([]);
+          setHistory([]);
+        }}
       />
       <DisclaimerModal
         visible={disclaimerVisible}
@@ -806,6 +887,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '90%',
     marginBottom: 4,
+    paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 0) + 10 : 10,
   },
 
   /* Title */
@@ -1212,6 +1294,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     paddingVertical: 10,
+    paddingBottom: Platform.OS === 'android' ? 24 : 10,
     borderTopWidth: 1,
     borderTopColor: 'rgba(212, 175, 55, 0.15)',
     backgroundColor: 'rgba(69, 10, 10, 0.95)',
